@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Laporan Service AC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px 10px 80px 10px; /* Extra bottom padding for fixed button */
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        .container {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        /* overflow: hidden; Dihapus atau dikomentari */
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: clamp(18px, 5vw, 22px);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: clamp(12px, 3.5vw, 14px);
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 20px 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            transition: border-color 0.3s, box-shadow 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .searchable-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            max-height: min(250px, 40vh); /* Responsive max height */
+            overflow-y: auto;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .dropdown-item {
+            padding: 16px 12px; /* Larger touch target */
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            background: white;
+            transition: background-color 0.2s;
+            min-height: 48px; /* Minimum touch target size */
+            display: flex;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:active {
+            background-color: #e3f2fd;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+        
+        .service-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        
+        .service-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.4;
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            min-height: 44px; /* Touch target */
+            min-width: 44px;
+        }
+        
+        .service-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .qty-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .qty-input {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .item-total {
+            font-weight: 600;
+            color: #28a745;
+            font-size: 15px;
+        }
+        
+        .add-service-btn {
+            width: 100%;
+            padding: 14px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 500;
+            min-height: 48px; /* Touch target */
+        }
+        
+        .add-service-btn:active {
+            background: #218838;
+            transform: translateY(1px);
+        }
+        
+        .total-section {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+        
+        .total-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .total-amount {
+            font-size: clamp(20px, 6vw, 24px);
+            font-weight: bold;
+        }
+        
+        /* Fixed submit button */
+        .submit-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 16px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            display: block;
+            padding: 16px;
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-height: 52px; /* Touch target */
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 0;
+            padding: 30px 20px;
+            border-radius: 12px 12px 0 0;
+            width: 100%;
+            max-width: 400px;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+            }
+            to {
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        .modal-content h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .modal-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            min-height: 44px;
+            min-width: 80px;
+        }
+        
+        .required {
+            color: red;
+        }
+        
+        /* Responsive breakpoints */
+        @media (max-width: 320px) {
+            body {
+                padding: 8px 8px 80px 8px;
+                font-size: 16px;
+            }
+            
+            .container {
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 16px 12px;
+            }
+            
+            .form-container {
+                padding: 16px 12px;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .service-item {
+                padding: 12px;
+            }
+            
+            .service-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .service-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .dropdown-list {
+                max-height: min(200px, 35vh);
+            }
+            
+            .dropdown-item {
+                padding: 14px 10px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (min-width: 321px) and (max-width: 375px) {
+            .dropdown-list {
+                max-height: min(220px, 38vh);
+            }
+        }
+        
+        @media (min-width: 376px) and (max-width: 414px) {
+            .dropdown-list {
+                max-height: min(240px, 40vh);
+            }
+        }
+        
+        @media (min-width: 415px) {
+            .container {
+                max-width: 460px;
+            }
+            
+            .dropdown-list {
+                max-height: min(280px, 45vh);
+            }
+        }
+        
+        /* Landscape orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .dropdown-list {
+                max-height: min(150px, 25vh);
+            }
+            
+            .modal-content {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                border-radius: 12px;
+                animation: fadeIn 0.3s ease-out;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .form-group input,
+            .form-group select,
+            .form-group textarea,
+            .search-input {
+                border-width: 3px;
+            }
+            
+            .dropdown-item {
+                border-bottom-width: 2px;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Focus styles for accessibility */
+        .form-group input:focus-visible,
+        .form-group select:focus-visible,
+        .form-group textarea:focus-visible,
+        .search-input:focus-visible,
+        .submit-btn:focus-visible,
+        .add-service-btn:focus-visible,
+        .remove-btn:focus-visible,
+        .modal-btn:focus-visible {
+            outline: 3px solid #2196F3;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Laporan Service AC</h1>
+            <p>Form untuk teknisi lapangan</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="serviceForm">
+                <div class="form-group">
+                    <label for="nama">Nama Pelanggan <span class="required">*</span></label>
+                    <input type="text" id="nama" name="nama" required autocomplete="name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="noHp">No HP <span class="required">*</span></label>
+                    <input type="tel" id="noHp" name="noHp" placeholder="628xxxxxxxxx" required autocomplete="tel">
+                </div>
+                
+                <div class="form-group">
+                    <label for="alamat">Alamat <span class="required">*</span></label>
+                    <textarea id="alamat" name="alamat" rows="3" required autocomplete="street-address"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pic">PIC Teknisi <span class="required">*</span></label>
+                    <select id="pic" name="pic" required>
+                        <option value="">Pilih Teknisi</option>
+                        <option value="Dedi">Dedi</option>
+                        <option value="Agung">Agung</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Jenis Layanan <span class="required">*</span></label>
+                    <div class="searchable-select">
+                        <input type="text" class="search-input" id="serviceSearch" placeholder="Cari jenis layanan..." autocomplete="off">
+                        <div class="dropdown-list" id="serviceDropdown"></div>
+                    </div>
+                </div>
+                
+                <div id="selectedServices"></div>
+                
+                <button type="button" class="add-service-btn" id="addServiceBtn" style="display: none;">
+                    + Tambah Layanan Lain
+                </button>
+                
+                <div class="total-section">
+                    <div class="total-label">Total Keseluruhan</div>
+                    <div class="total-amount" id="grandTotal">Rp 0</div>
+                </div>
+            </form>
+            
+            <div class="loading" id="loadingDiv">
+                <div class="spinner"></div>
+                <p>Pesanan sedang diproses...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-container">
+        <button type="submit" class="submit-btn" id="submitBtn" form="serviceForm">
+            📤 Kirim Laporan
+        </button>
+    </div>
+    
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h3>✅ Berhasil!</h3>
+            <p>Pesanan sudah diproses dan notifikasi telah dikirim</p>
+            <button class="modal-btn" onclick="resetForm()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const priceList = [
+            {name: 'Cuci AC 0,5 Pk', price: 85000},
+            {name: 'Cuci AC 1 Pk', price: 90000},
+            {name: 'Cuci AC 1,5 Pk', price: 95000},
+            {name: 'Cuci AC 2 Pk', price: 100000},
+            {name: 'Service AC 0,5 Pk', price: 110000},
+            {name: 'Service AC 1 Pk', price: 115000},
+            {name: 'Service AC 2 Pk', price: 120000}
+        ];
+        
+        let selectedServices = [];
+        let serviceCounter = 0;
+        
+        const serviceSearch = document.getElementById('serviceSearch');
+        const serviceDropdown = document.getElementById('serviceDropdown');
+        const selectedServicesDiv = document.getElementById('selectedServices');
+        const grandTotalDiv = document.getElementById('grandTotal');
+        const addServiceBtn = document.getElementById('addServiceBtn');
+        
+        async function sendWhatsAppNotification(formData) {
+            const deviceId = "d_ID@6753a3309becd_V25MY7j95sjMF";
+            const woowaUrl = "https://crm.woo-wa.com/send/message-text";
+            
+            // Format pesan WhatsApp
+            const message = `🔧 *LAPORAN SERVICE AC* 🔧
+
+📅 Tanggal: ${formData.timestamp}
+👤 Pelanggan: ${formData.nama}
+📱 No HP: ${formData.noHp}
+📍 Alamat: ${formData.alamat}
+👨‍🔧 Teknisi: ${formData.pic}
+
+📋 *DETAIL LAYANAN:*
+${formData.services.map(service => 
+    `• ${service.name} (Qty: ${service.qty}) - ${formatRupiah(service.total)}`
+).join('\n')}
+
+💰 *TOTAL: ${formatRupiah(formData.grandTotal)}*
+
+Status: ✅ Selesai dikerjakan`;
+
+            const requestBody = {
+                deviceId: deviceId,
+                number: formData.noHp,
+                message: message
+            };
+
+            try {
+                const response = await fetch(woowaUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const result = await response.json();
+                console.log('WhatsApp notification sent:', result);
+                return result;
+            } catch (error) {
+                console.error('Error sending WhatsApp notification:', error);
+                return null;
+            }
+        }
+        
+        // Callback function untuk JSONP
+        function handleResponse(response) {
+            // Hide loading
+            document.getElementById('loadingDiv').style.display = 'none';
+            
+            if (response && response.status === 'success') {
+                // Show success modal
+                document.getElementById('successModal').style.display = 'block';
+            } else {
+                // Show error
+                document.querySelector('.form-container').style.display = 'block';
+                alert('Terjadi kesalahan: ' + (response ? response.message : 'Unknown error'));
+            }
+        }
+        
+        // Format number to Rupiah
+        function formatRupiah(number) {
+            return 'Rp ' + number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        // Format phone number
+        function formatPhone(phone) {
+            phone = phone.replace(/\D/g, '');
+            if (phone.startsWith('0')) {
+                phone = '62' + phone.substring(1);
+            } else if (!phone.startsWith('62')) {
+                phone = '62' + phone;
+            }
+            return phone;
+        }
+        
+        // Populate dropdown
+        function populateDropdown(items) {
+            serviceDropdown.innerHTML = '';
+            
+            if (items.length === 0) {
+                serviceDropdown.style.display = 'none';
+                return;
+            }
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.textContent = `${item.name} - ${formatRupiah(item.price)}`;
+                div.onclick = () => selectService(item);
+                serviceDropdown.appendChild(div);
+            });
+            
+            serviceDropdown.style.display = 'block';
+        }
+        
+        // Search services
+        serviceSearch.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query === '') {
+                serviceDropdown.style.display = 'none';
+                return;
+            }
+            
+            const filtered = priceList.filter(item => 
+                item.name.toLowerCase().includes(query) &&
+                !selectedServices.some(selected => selected.name === item.name)
+            );
+            
+            populateDropdown(filtered);
+        });
+
+        serviceSearch.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                const available = priceList.filter(item => 
+                    !selectedServices.some(selected => selected.name === item.name)
+                );
+                populateDropdown(available);
+            }
+        });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.searchable-select')) {
+                serviceDropdown.style.display = 'none';
+            }
+        });
+
+       document.addEventListener('touchstart', function(e) {
+        // Cek jika sentuhan BUKAN di dalam area pencarian DAN BUKAN di dalam dropdown itu sendiri
+        if (!e.target.closest('.searchable-select') && !e.target.closest('.dropdown-list')) {
+            serviceDropdown.style.display = 'none';
+        }
+        });
+        
+        // Select service
+        function selectService(service) {
+            serviceCounter++;
+            const serviceItem = {
+                id: serviceCounter,
+                name: service.name,
+                price: service.price,
+                qty: 1,
+                total: service.price
+            };
+            
+            selectedServices.push(serviceItem);
+            renderSelectedServices();
+            updateGrandTotal();
+            
+            serviceSearch.value = '';
+            serviceDropdown.style.display = 'none';
+            addServiceBtn.style.display = 'block';
+        }
+        
+        // Render selected services
+        function renderSelectedServices() {
+            selectedServicesDiv.innerHTML = '';
+            selectedServices.forEach(service => {
+                const div = document.createElement('div');
+                div.className = 'service-item';
+                div.innerHTML = `
+                    <div class="service-header">
+                        <span class="service-name">${service.name}</span>
+                        <button type="button" class="remove-btn" onclick="removeService(${service.id})" aria-label="Hapus layanan">×</button>
+                    </div>
+                    <div class="service-details">
+                        <div class="qty-container">
+                            <label>Qty: </label>
+                            <input type="number" class="qty-input" value="${service.qty}" min="1" 
+                                   onchange="updateQty(${service.id}, this.value)">
+                        </div>
+                        <div class="item-total">${formatRupiah(service.total)}</div>
+                    </div>
+                `;
+                selectedServicesDiv.appendChild(div);
+            });
+        }
+        
+        // Remove service
+        function removeService(id) {
+            selectedServices = selectedServices.filter(service => service.id !== id);
+            renderSelectedServices();
+            updateGrandTotal();
+            
+            if (selectedServices.length === 0) {
+                addServiceBtn.style.display = 'none';
+            }
+        }
+        
+        // Update quantity
+        function updateQty(id, qty) {
+            const service = selectedServices.find(s => s.id === id);
+            if (service) {
+                service.qty = parseInt(qty) || 1;
+                service.total = service.price * service.qty;
+                renderSelectedServices();
+                updateGrandTotal();
+            }
+        }
+        
+        // Update grand total
+        function updateGrandTotal() {
+            const total = selectedServices.reduce((sum, service) => sum + service.total, 0);
+            grandTotalDiv.textContent = formatRupiah(total);
+        }
+        
+        // Add service button
+        addServiceBtn.addEventListener('click', function() {
+            serviceSearch.focus();
+            serviceSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        
+        // Form validation
+        function validateForm() {
+            const noHp = document.getElementById('noHp').value;
+            const formattedPhone = formatPhone(noHp);
+            
+            if (formattedPhone.length < 10) {
+                alert('Format nomor HP tidak valid');
+                return false;
+            }
+            
+            if (selectedServices.length === 0) {
+                alert('Pilih minimal satu jenis layanan');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Form submission
+        document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) return;
+            
+            // Show loading
+            document.querySelector('.form-container').style.display = 'none';
+            document.getElementById('loadingDiv').style.display = 'block';
+            
+            // Prepare data
+            const formData = {
+                timestamp: new Date().toLocaleString('id-ID'),
+                nama: document.getElementById('nama').value,
+                noHp: formatPhone(document.getElementById('noHp').value),
+                alamat: document.getElementById('alamat').value,
+                pic: document.getElementById('pic').value,
+                services: selectedServices,
+                grandTotal: selectedServices.reduce((sum, service) => sum + service.total, 0)
+            };
+            
+            // Kirim notifikasi WhatsApp
+            const whatsappResult = await sendWhatsAppNotification(formData);
+            
+            // Kirim ke Google Sheets (opsional - jika masih diperlukan)
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbz-0gdaRAm3FR8o0clI58GGLLkFjIIc7PkaLZ1y-1hs7qGVS9TCufpMkL_5ok9Ob4rE6w/exec';
+            
+            // Buat URL dengan parameter GET
+            const params = new URLSearchParams();
+            params.append('action', 'submit');
+            params.append('data', JSON.stringify(formData));
+            
+            const fullUrl = `${scriptUrl}?${params.toString()}`;
+            
+            // Gunakan script tag untuk JSONP
+            const script = document.createElement('script');
+            script.src = fullUrl + '&callback=handleResponse';
+            document.head.appendChild(script);
+            
+            // Cleanup script setelah 5 detik
+            setTimeout(() => {
+                if (document.head.contains(script)) {
+                    document.head.removeChild(script);
+                }
+                // Tampilkan sukses setelah WhatsApp terkirim
+                handleResponse({status: 'success'});
+            }, 5000);
+        });
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('serviceForm').reset();
+            selectedServices = [];
+            serviceCounter = 0;
+            renderSelectedServices();
+            updateGrandTotal();
+            addServiceBtn.style.display = 'none';
+            
+            document.getElementById('successModal').style.display = 'none';
+            document.querySelector('.form-container').style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Phone number formatting on input
+        document.getElementById('noHp').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.startsWith('0')) {
+                value = '62' + value.substring(1);
+            } else if (!value.startsWith('62') && value.length > 0) {
+                value = '62' + value;
+            }
+            this.value = value;
+        });
+        
+        // Prevent zoom on input focus for iOS
+        function preventZoom() {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            }
+        }
+        
+        // Handle viewport changes on orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=no');
+                }
+            }, 500);
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            preventZoom();
+            updateGrandTotal();
+        });
+        
+        // Handle back button on mobile browsers
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('successModal').style.display === 'block') {
+                document.getElementById('successModal').style.display = 'none';
+                e.preventDefault();
+            }
+        });
+        
+        // Optimize scroll performance
+        let ticking = false;
+        
+        function updateScrollState() {
+            // Add any scroll-based optimizations here if needed
+            ticking = false;
+        }
+        
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollState);
+                ticking = true;
+            }
+        });
+        
+        // Handle keyboard visibility on mobile
+        let initialViewportHeight = window.innerHeight;
+        
+        window.addEventListener('resize', function() {
+            const currentHeight = window.innerHeight;
+            const heightDifference = initialViewportHeight - currentHeight;
+            
+            // If height difference is significant, likely keyboard is open
+            if (heightDifference > 150) {
+                document.body.classList.add('keyboard-open');
+            } else {
+                document.body.classList.remove('keyboard-open');
+            }
+        });
+    </script>
+    
+    <style>
+        /* Additional styles for keyboard handling */
+        .keyboard-open .submit-container {
+            display: none;
+        }
+        
+        .keyboard-open body {
+            padding-bottom: 20px;
+        }
+        
+        /* Improve touch targets on very small screens */
+        @media (max-width: 320px) {
+            .dropdown-item {
+                min-height: 44px;
+                font-size: 14px;
+            }
+            
+            .remove-btn {
+                min-width: 40px;
+                min-height: 40px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        /* Smooth scrolling for all browsers */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Better contrast for accessibility */
+        @media (prefers-contrast: high) {
+            .service-item {
+                border-width: 2px;
+                border-color: #333;
+            }
+            
+            .total-section {
+                border: 2px solid #fff;
+            }
+        }
+    </style>
+</body>
+</html>
