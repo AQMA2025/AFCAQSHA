@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -299,6 +298,95 @@
             font-size: 16px;
             font-weight: 500;
         }
+        /* Photo Upload Styles */
+.photo-upload-container {
+    border: 2px dashed #e1e5e9;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: border-color 0.3s;
+}
+
+.photo-upload-container:hover {
+    border-color: #2196F3;
+}
+
+.photo-upload-container.dragover {
+    border-color: #2196F3;
+    background: #e3f2fd;
+}
+
+.upload-icon {
+    font-size: 32px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.file-input {
+    display: none;
+}
+
+.upload-btn {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.photo-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.photo-preview {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e1e5e9;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-photo {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-count {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
     </style>
 </head>
 <body>
@@ -330,6 +418,24 @@
                         <option value="Dedi">Dedi</option>
                         <option value="Agung">Agung</option>
                     </select>
+                    <div class="form-group">
+    <label for="catatan">Catatan Teknisi</label>
+    <textarea id="catatan" name="catatan" rows="3" placeholder="Tambahkan catatan khusus jika diperlukan..." autocomplete="off"></textarea>
+</div>
+
+<div class="form-group">
+    <label>Foto Dokumentasi <span style="font-size: 12px; color: #666;">(Maksimal 5 foto)</span></label>
+    <div class="photo-upload-container" id="photoUploadContainer">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">Klik atau drag foto ke sini</div>
+        <button type="button" class="upload-btn" onclick="document.getElementById('photoInput').click()">
+            Pilih Foto
+        </button>
+        <input type="file" id="photoInput" class="file-input" accept="image/*" multiple>
+        <div class="photo-count" id="photoCount">0/5 foto</div>
+    </div>
+    <div class="photo-preview-container" id="photoPreviewContainer"></div>
+</div>
                 </div>
                 <div class="form-group">
                     <label>Jenis Layanan <span style="color:red;">*</span></label>
@@ -346,9 +452,9 @@
                 </button>
                 
                 <div class="total-section">
-                    <div class="total-label">Total Keseluruhan</div>
-                    <div class="total-amount" id="grandTotal">Rp 0</div>
-                </div>
+    <div class="total-label">Total Layanan</div>
+    <div class="total-amount" id="grandTotal">0 Layanan</div>
+</div>
                 
                 <button type="submit" class="submit-btn" id="submitBtn">
                     📤 Kirim Laporan
@@ -372,19 +478,19 @@
 
     <script>
         const priceList = [
-            {name: 'Pemeriksaan Cek', price: 0},
-            {name: 'Cuci AC', price: 80000},
-            {name: 'Bobok Dinding/titik', price: 100000},
-            {name: 'AC Multi/Unit Indoor', price: 150000},
-            {name: 'Perbaiki Minor', price: 150000},
-            {name: 'Bobok Dinding/m', price: 150000},
-            {name: 'Bongkar Unit', price: 200000},
-            {name: 'Pasang Unit', price: 350000},
-            {name: 'Perbaiki Mayor', price: 350000},
-            {name: 'Isi Freon', price: 400000},
-            {name: 'Bongkar & Pasang', price: 450000},
-            {name: 'Overhoul/Cuci besar', price: 465000}
-        ];
+    {name: 'Pemeriksaan Cek'},
+    {name: 'Cuci AC'},
+    {name: 'Bobok Dinding/titik'},
+    {name: 'AC Multi/Unit Indoor'},
+    {name: 'Perbaiki Minor'},
+    {name: 'Bobok Dinding/m'},
+    {name: 'Bongkar Unit'},
+    {name: 'Pasang Unit'},
+    {name: 'Perbaiki Mayor'},
+    {name: 'Isi Freon'},
+    {name: 'Bongkar & Pasang'},
+    {name: 'Overhoul/Cuci besar'}
+];
         const technicianPhones = {
             'Dedi': '6285722176558',
             'Agung': '628982050212'
@@ -406,30 +512,37 @@
         const successBox = document.getElementById('successBox');
 
         async function sendWhatsAppNotification(formData) {
-            // This function remains the same
-            const deviceId = "d_ID@6753a3309becd_V25MY7j95sjMF";
-            const woowaUrl = "https://crm.woo-wa.com/send/message-text";
-            const message = `🔧 *LAPORAN SERVICE AC* 🔧\n\n📅 Tanggal: ${formData.timestamp}\n👤 Pelanggan: ${formData.nama}\n📱 No HP: ${formData.noHp}\n📍 Alamat: ${formData.alamat}\n👨‍🔧 Teknisi: ${formData.pic}\n\n📋 *DETAIL LAYANAN:*\n${formData.services.map(service => `• ${service.name} (Qty: ${service.qty}) - ${formatRupiah(service.total)}`).join('\n')}\n\n💰 *TOTAL: ${formatRupiah(formData.grandTotal)}*\n\nStatus: ✅ Selesai dikerjakan`;
+    const deviceId = "d_ID@6753a3309becd_V25MY7j95sjMF";
+    const woowaUrl = "https://crm.woo-wa.com/send/message-text";
+    
+    // Message for customer (without notes)
+    const customerMessage = `🔧 *LAPORAN SERVICE AC* 🔧\n\n📅 Tanggal: ${formData.timestamp}\n👤 Pelanggan: ${formData.nama}\n📱 No HP: ${formData.noHp}\n📍 Alamat: ${formData.alamat}\n👨‍🔧 Teknisi: ${formData.pic}\n\n📋 *DETAIL LAYANAN:*\n${formData.services.map(service => `• ${service.name} (Qty: ${service.qty})`).join('\n')}\n\n📊 *TOTAL LAYANAN: ${formData.services.length}*\n\nStatus: ✅ Selesai dikerjakan`;
+    
+    // Message for technician (with notes if any)
+    let technicianMessage = customerMessage;
+    if (formData.catatan && formData.catatan.trim()) {
+        technicianMessage += `\n\n📝 *CATATAN TEKNISI:*\n${formData.catatan}`;
+    }
 
-            const customerRequest = { deviceId, number: formData.noHp, message };
-            const technicianPhone = technicianPhones[formData.pic];
-            
-            try {
-                await fetch(woowaUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customerRequest) });
-                console.log('Customer notification sent.');
-                if (technicianPhone) {
-                    const technicianRequest = { deviceId, number: technicianPhone, message };
-                    await fetch(woowaUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(technicianRequest) });
-                    console.log('Technician notification sent.');
-                }
-            } catch (error) {
-                console.error("Error sending WhatsApp:", error);
-                // Even if WA fails, we might want to proceed with Google Sheets
-            }
+    const customerRequest = { deviceId, number: formData.noHp, message: customerMessage };
+    const technicianPhone = technicianPhones[formData.pic];
+    
+    try {
+        await fetch(woowaUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customerRequest) });
+        console.log('Customer notification sent.');
+        if (technicianPhone) {
+            const technicianRequest = { deviceId, number: technicianPhone, message: technicianMessage };
+            await fetch(woowaUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(technicianRequest) });
+            console.log('Technician notification sent.');
         }
+    } catch (error) {
+        console.error("Error sending WhatsApp:", error);
+    }
+}
+        
         
         function sendToGoogleSheets(formData) {
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbz-0gdaRAm3FR8o0clI58GGLLkFjIIc7PkaLZ1y-1hs7qGVS9TCufpMkL_5ok9Ob4rE6w/exec';
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbywaHwPaGojbJR3XjHDk7S8sENShfZns-U8z3mlXQMMb6ylzuxHNLqZunvRj6Fanu10qA/exec';
             const params = new URLSearchParams({
                 action: 'submit',
                 data: JSON.stringify(formData),
@@ -471,7 +584,7 @@
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'dropdown-item';
-                div.textContent = `${item.name} - ${formatRupiah(item.price)}`;
+                div.textContent = item.name;
                 div.onclick = () => selectService(item);
                 serviceDropdown.appendChild(div);
             });
@@ -499,7 +612,7 @@
         
         function selectService(service) {
             serviceCounter++;
-            selectedServices.push({ id: serviceCounter, name: service.name, price: service.price, qty: 1, total: service.price });
+            selectedServices.push({ id: serviceCounter, name: service.name, qty: 1 });
             renderSelectedServices();
             updateGrandTotal();
             serviceSearch.value = '';
@@ -518,11 +631,11 @@
                         <button type="button" class="remove-btn" onclick="removeService(${service.id})" aria-label="Hapus">×</button>
                     </div>
                     <div class="service-details">
-                        <div class="qty-container">
-                            <label>Qty:</label>
-                            <input type="number" class="qty-input" value="${service.qty}" min="1" onchange="updateQty(${service.id}, this.value)">
-                        </div>
-                        <div class="item-total">${formatRupiah(service.total)}</div>
+    <div class="qty-container">
+        <label>Qty:</label>
+        <input type="number" class="qty-input" value="${service.qty}" min="1" onchange="updateQty(${service.id}, this.value)">
+    </div>
+</div>
                     </div>`;
                 selectedServicesDiv.appendChild(div);
             });
@@ -538,19 +651,16 @@
         }
         
         function updateQty(id, qty) {
-            const service = selectedServices.find(s => s.id === id);
-            if (service) {
-                service.qty = parseInt(qty) || 1;
-                service.total = service.price * service.qty;
-                renderSelectedServices();
-                updateGrandTotal();
-            }
-        }
+    const service = selectedServices.find(s => s.id === id);
+    if (service) {
+        service.qty = parseInt(qty) || 1;
+        renderSelectedServices();
+    }
+}
         
         function updateGrandTotal() {
-            const total = selectedServices.reduce((sum, s) => sum + s.total, 0);
-            grandTotalDiv.textContent = formatRupiah(total);
-        }
+    grandTotalDiv.textContent = 'Total Layanan: ' + selectedServices.length;
+}
         
         addServiceBtn.addEventListener('click', () => {
             serviceSearch.focus();
@@ -568,56 +678,173 @@
         
         // MODIFIED: Form Submission Logic
         serviceForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (!serviceForm.checkValidity() || !validateForm()) {
-                // Trigger browser's native validation UI
-                serviceForm.reportValidity();
-                return;
-            }
-            
-            // Show loading overlay
-            feedbackOverlay.style.display = 'flex';
-            loader.style.display = 'block';
-            successBox.style.display = 'none';
-            
-            const formData = {
-                timestamp: new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short'}),
-                nama: document.getElementById('nama').value,
-                noHp: formatPhone(document.getElementById('noHp').value),
-                alamat: document.getElementById('alamat').value,
-                pic: document.getElementById('pic').value,
-                services: selectedServices,
-                grandTotal: selectedServices.reduce((sum, s) => sum + s.total, 0)
-            };
-            
-            // Perform async operations
-            await sendWhatsAppNotification(formData);
-            sendToGoogleSheets(formData);
-            
-            // Simulate a short delay for better UX, then show success
-            setTimeout(() => {
-                loader.style.display = 'none';
-                successBox.style.display = 'block';
-            }, 1500); // Wait 1.5 seconds before showing success
-        });
+    e.preventDefault();
+    if (!serviceForm.checkValidity() || !validateForm()) {
+        serviceForm.reportValidity();
+        return;
+    }
+    
+    // Show loading overlay
+    feedbackOverlay.style.display = 'flex';
+    loader.style.display = 'block';
+    successBox.style.display = 'none';
+    
+    // Convert photos to base64
+    const photoData = await convertPhotosToBase64();
+    
+    const formData = {
+        timestamp: new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short'}),
+        nama: document.getElementById('nama').value,
+        noHp: formatPhone(document.getElementById('noHp').value),
+        alamat: document.getElementById('alamat').value,
+        pic: document.getElementById('pic').value,
+        catatan: document.getElementById('catatan').value,
+        services: selectedServices,
+        totalServices: selectedServices.length,
+        photos: photoData
+    };
+    
+    // Perform async operations
+    await sendWhatsAppNotification(formData);
+    sendToGoogleSheets(formData);
+    
+    // Simulate a short delay for better UX, then show success
+    setTimeout(() => {
+        loader.style.display = 'none';
+        successBox.style.display = 'block';
+    }, 1500);
+});
         
         // MODIFIED: Reset Form Logic
         function resetForm() {
-            serviceForm.reset();
-            selectedServices = [];
-            serviceCounter = 0;
-            renderSelectedServices();
-            updateGrandTotal();
-            addServiceBtn.style.display = 'none';
-            
-            // Hide the overlay
-            feedbackOverlay.style.display = 'none';
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    serviceForm.reset();
+    selectedServices = [];
+    serviceCounter = 0;
+    selectedPhotos = [];
+    renderSelectedServices();
+    updateGrandTotal();
+    photoPreviewContainer.innerHTML = '';
+    updatePhotoCount();
+    addServiceBtn.style.display = 'none';
+    
+    // Hide the overlay
+    feedbackOverlay.style.display = 'none';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
         
         // Initialize
         document.addEventListener('DOMContentLoaded', updateGrandTotal);
+        // Photo handling variables
+let selectedPhotos = [];
+const maxPhotos = 5;
+
+// Photo upload functionality
+const photoInput = document.getElementById('photoInput');
+const photoUploadContainer = document.getElementById('photoUploadContainer');
+const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+const photoCount = document.getElementById('photoCount');
+
+photoInput.addEventListener('change', handlePhotoSelect);
+
+// Drag and drop functionality
+photoUploadContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    photoUploadContainer.classList.add('dragover');
+});
+
+photoUploadContainer.addEventListener('dragleave', () => {
+    photoUploadContainer.classList.remove('dragover');
+});
+
+photoUploadContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    photoUploadContainer.classList.remove('dragover');
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    addPhotos(files);
+});
+
+function handlePhotoSelect(e) {
+    const files = Array.from(e.target.files);
+    addPhotos(files);
+    e.target.value = ''; // Reset input
+}
+
+function addPhotos(files) {
+    const remainingSlots = maxPhotos - selectedPhotos.length;
+    const filesToAdd = files.slice(0, remainingSlots);
+    
+    if (files.length > remainingSlots) {
+        alert(`Maksimal ${maxPhotos} foto. ${files.length - remainingSlots} foto tidak akan ditambahkan.`);
+    }
+    
+    filesToAdd.forEach((file, index) => {
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+            return;
+        }
+        
+        const photoId = Date.now() + index;
+        selectedPhotos.push({ id: photoId, file: file });
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = document.createElement('div');
+            preview.className = 'photo-preview';
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="Preview">
+                <button type="button" class="remove-photo" onclick="removePhoto(${photoId})">×</button>
+            `;
+            photoPreviewContainer.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    updatePhotoCount();
+}
+
+function removePhoto(photoId) {
+    selectedPhotos = selectedPhotos.filter(photo => photo.id !== photoId);
+    renderPhotoPreview();
+    updatePhotoCount();
+}
+
+function renderPhotoPreview() {
+    photoPreviewContainer.innerHTML = '';
+    selectedPhotos.forEach(photo => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = document.createElement('div');
+            preview.className = 'photo-preview';
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="Preview">
+                <button type="button" class="remove-photo" onclick="removePhoto(${photo.id})">×</button>
+            `;
+            photoPreviewContainer.appendChild(preview);
+        };
+        reader.readAsDataURL(photo.file);
+    });
+}
+
+function updatePhotoCount() {
+    photoCount.textContent = `${selectedPhotos.length}/${maxPhotos} foto`;
+}
+
+// Convert photos to base64 for sending
+function convertPhotosToBase64() {
+    return Promise.all(selectedPhotos.map(photo => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+                name: photo.file.name,
+                data: reader.result,
+                size: photo.file.size
+            });
+            reader.readAsDataURL(photo.file);
+        });
+    }));
+}
     </script>
 </body>
 </html>
